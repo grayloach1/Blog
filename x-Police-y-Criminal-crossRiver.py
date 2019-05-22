@@ -95,5 +95,3 @@ if __name__ == '__main__':
     print('     警 囚 船        警 囚 船')
     for status in solutions[0]:
         print(statusFormat(status))
-#增加了一些没有必要的说明
-#增加1
