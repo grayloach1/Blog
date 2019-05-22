@@ -1,4 +1,150 @@
+Github简易教程
+2019-05-22by老余
+
 Git是世界上最先进的分布式版本控制系统。
 
+1、原理：
+任意长度的数据，可以通过一种hash算法得到一串字符，称之为哈希值，可以认为这段数据与这一串字符一一对应，该哈希值常常称之为数据指纹。哈希值有几个重要的特性：
+1）任意长度的数据经过同一种哈希算法，永远得到相同的唯一哈希值。
+2）数据只要有哪怕一个字节的变动，就会得到截然不同的另一串哈希值，因此哈希值标志了数据的完整性。
+3）通过哈希值，无法反算出原数据是什么。
+
+Git使用数据的哈希值的这些特征，来实现分布式的文件的版本管理。
+
+在逻辑上，Git把数据分为三个存储区：
+【工作区】与用户工作的文件夹对应。
+【版本库】位于本地.git目录下，由git软件自动管理
+【远程仓库】一般指github网站，也可以使用git软件自己搭建服务器。
+git在这三个区中同步数据时，先检查在目标区中是否存在对应的哈希值，如果有，就可以避免直接同步文件数据本身，而只是简单的登记哈希值就可以了，这解决了分布式存储需要传输大量数据的难题。
+
+2、安装Git
+<略>
+
+3、创建本地仓库repository
+启动Git Bash,进入D:\盘，创建一个目录learngit：
+user@EXISTENCE MINGW64 ~ (master)
+$ mkdir learngit
+$ cd learngit
+$ pwd
+/D/learngit/
+$ git init
+Initialized empty Git repository in D:/learngit/.git/
+现在，/D/learngit/就是你的【工作区】。你会发现在你刚才创建的learngit目录下，多了一个隐藏的.git目录，这是由git自动管理的【版本库】，将用来保存Git工作的数据，大家最好不要手动去更改这个目录的任何文件。
+
+4、把文件保存到本地【版本库】
+在D:\learngit目录下手动新建一个文件readme.txt，内容为
+----------------------------------------------------
+Github简易教程
+
+Git是世界上最先进的分布式版本控制系统。
+----------------------------------------------------
+启动Git Bash,然后依次输入以下命令：
+user@EXISTENCE MINGW64 ~ (master)
+$ cd /D/learngit
+
+user@EXISTENCE MINGW64 /D/learngit (master)
+$ git add readme.txt
+
+user@EXISTENCE MINGW64 /D/learngit (master)
+$ git commit -m 'Add readme.txt file'
+[master (root-commit) 2d31211] Add readme.txt file
+ 1 file changed, 3 insertions(+)
+ create mode 100644 readme.txt
+
+以上分两步分别用git add和git commit命令把readme.txt文件加入了本地【版本库】
+现在输入git status查看状态，然后用任意一款文本编辑器给readme.txt添加一行文字并保存，再次输入git status查看状态，git会提示我们readme.txt被更改了，可以使用git add把更改后的文件加入【版本库】(然后还要使用git commit才能真正加入)，或者使用git checkout放弃刚才的更改。我们输入git checkout readme.txt并回车，git没有任何提示消息。在linux哲学里，没有消息就是最好的消息，表示操作已经成功。再次查看readme.txt文件的内容，惊讶的发现，刚才添加并保存的内容果然不见了。
+
+user@EXISTENCE MINGW64 /D/learngit (master)
+$ git status
+On branch master
+nothing to commit, working tree clean
+
+user@EXISTENCE MINGW64 /D/learngit (master)
+$ git status
+On branch master
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+        modified:   readme.txt
+
+no changes added to commit (use "git add" and/or "git commit -a")
+
+user@EXISTENCE MINGW64 /D/learngit (master)
+$ git checkout readme.txt
+
+我们再次更改readme.txt文件的内容并保存，然后输入git diff，可以查看到【工作区】和【版本库】中文件内容的差别。再次输入git status查看状态，输入git add和git commit把改动保存到【版本库】，然后输入git log（可以加上参数--pretty=oneline）查看数据的保存版本变化情况。再次输入git status检查状态，git提示“nothing to commit, working tree clean”，表示【版本库】已经和【工作区】数据版本一致。
+
+user@EXISTENCE MINGW64 /D/learngit (master)
+$ git diff
+diff --git a/readme.txt b/readme.txt
+index 7b4d702..48ff8c0 100644
+……
+user@EXISTENCE MINGW64 /D/learngit (master)
+$ git add readme.txt
+
+user@EXISTENCE MINGW64 /D/learngit (master)
+$ git commit -m'Modify readme.txt'
+[master 88adc0c] Modify readme.txt
+ 1 file changed, 1 insertion(+)
+
+user@EXISTENCE MINGW64 /D/learngit (master)
+$ git log --pretty=oneline
+88adc0c6066375498531b7d663d192ce23230ded (HEAD -> master) Modify readme.txt
+2d3121197ccae101c07034f350fd309d53dbcec1 Add readme.txt file
+
+user@EXISTENCE MINGW64 /D/learngit (master)
+$ git status
+On branch master
+nothing to commit, working tree clean
+
+5、从本地【版本库】选择版本，恢复到【工作区】
+在Git中，HEAD指针代表当前版本，也就是上面的88adc0c……那个版本，HEAD^代表上上个版本，也就是2d31211……那个版本，HEAD~3代表倒数第三个版本。也可以直接引用版本前面的几个字符。现在我们来使用这些方法，使readme.txt的内容在不同的版本中滚来滚去:)
+user@EXISTENCE MINGW64 /D/learngit (master)
+$ git reset --hard HEAD^
+HEAD is now at 2d31211 Add readme.txt file
+
+user@EXISTENCE MINGW64 /D/learngit (master)
+$ git reset --hard 88ad
+HEAD is now at 88adc0c Modify readme.txt
+
+user@EXISTENCE MINGW64 /D/learngit (master)
+$ git reset --hard 2d31
+HEAD is now at 2d31211 Add readme.txt file
+
+user@EXISTENCE MINGW64 /D/learngit (master)
+以上命令每输一个，都查看一下readme.txt的内容，看它是否在指定的版本之间切换。得益于只操作指针而不是移动文件数据，Git版本回滚速度非常快。
+如果回滚到较早的版本之后，git log就查看不到比它新的版本号了，这时可以用git reflog查看操作历史记录，找到你想要版本号。
+
+下面我们在【工作区】再添加一个文件test.txt，添加到【版本库】，然后使用git rm在【版本库】删除这个文件。
+
+user@EXISTENCE MINGW64 /D/learngit (master)
+$ git add test.txt
+
+user@EXISTENCE MINGW64 /D/learngit (master)
+$ git commit -m'Add test.txt'
+[master d660d1f] Add test.txt
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ create mode 100644 test.txt
+
+user@EXISTENCE MINGW64 /D/learngit (master)
+$ git rm test.txt
+rm 'test.txt'
+
+user@EXISTENCE MINGW64 /D/learngit (master)
+$ git commit -m'Remove test'
+[master b264c86] Remove test
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ delete mode 100644 test.txt
 
 
+6、分布式的真谛：从【版本库】存到【远程仓库】
+
+
+
+
+
+
+
+参考：
+https://www.liaoxuefeng.com/wiki/896043488029600
