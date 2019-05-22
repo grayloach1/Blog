@@ -1,4 +1,4 @@
-Github简易教程
+Github简易教程(上)
 2019-05-22by老余
 
 Git是世界上最先进的分布式版本控制系统。
@@ -116,7 +116,7 @@ user@EXISTENCE MINGW64 /D/learngit (master)
 以上命令每输一个，都查看一下readme.txt的内容，看它是否在指定的版本之间切换。得益于只操作指针而不是移动文件数据，Git版本回滚速度非常快。
 如果回滚到较早的版本之后，git log就查看不到比它新的版本号了，这时可以用git reflog查看操作历史记录，找到你想要版本号。
 
-下面我们在【工作区】再添加一个文件test.txt，添加到【版本库】，然后使用git rm在【版本库】删除这个文件。
+下面我们在【工作区】再添加一个文件test.txt，添加到本地【版本库】，然后使用git rm在【版本库】删除这个文件。
 
 user@EXISTENCE MINGW64 /D/learngit (master)
 $ git add test.txt
@@ -136,14 +136,6 @@ $ git commit -m'Remove test'
 [master b264c86] Remove test
  1 file changed, 0 insertions(+), 0 deletions(-)
  delete mode 100644 test.txt
-
-
-6、分布式的真谛：从【版本库】存到【远程仓库】
-
-
-
-
-
 
 
 参考：
