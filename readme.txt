@@ -1,3 +1,1 @@
-这是在Larning分支上所作的更改。
-
-add tag 'beta'
+这是一个用来练习如何使用github的项目。
