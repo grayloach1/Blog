@@ -18,7 +18,12 @@ Git使用数据的哈希值的这些特征，来实现分布式的文件的版�
 git在这三个区中同步数据时，先检查在目标区中是否存在对应的哈希值，如果有，就可以避免直接同步文件数据本身，而只是简单的登记哈希值就可以了，这解决了分布式存储需要传输大量数据的难题。
 
 2、安装Git
-<略>
+在Linux上，输入Git看系统是否已经安装Git，然后安装：
+$ sudo apt-get install git
+在Mac OS 上：
+运行Xcode,选择'Preferences'菜单，下载'Command Line Tools'，点'Install'安装就可以了。
+在Windows上：
+在官网下载https://git-scm.com/downloads安装，如果能打开Git图标的命令行窗口，即安装成功。
 
 3、创建本地仓库repository
 启动Git Bash,进入D:\盘，创建一个目录learngit：
@@ -136,6 +141,129 @@ $ git commit -m'Remove test'
 [master b264c86] Remove test
  1 file changed, 0 insertions(+), 0 deletions(-)
  delete mode 100644 test.txt
+
+6、【远程仓库】
+6.1、现在我们把之前在本地【版本库】里创建的内容，推送到github网站上去。
+step1: 先在Github注册一个用户
+step2: 配置用户名和密钥对
+在使用远程仓库之前，需要先填写以下配置，在Git Bash命令行下输入：
+$ git config --global user.name "yourName"
+$ git config --global user.email "userName@domain.com"
+不需要填写口令，而是采用SSH机制，现在使用你自己的邮箱名在本地创建SSH Key:
+$ ssh-keygen -t rsa -C "userName@domain.com"
+成功之后，可以找到刚才创建的.ssh目录，里面有id_rsa和id_rsa.pub两个文件,分别是私钥（严格保密）和公钥，登陆Github网站，打开'Account setting'>'SSH Keys'>'Add SSH Key'，打开id_rsa.pub复制全部内容粘贴在网页这里的文本区，点'Add Key'保存。可以看到SSH Keys已经添加成功。
+step3: 创建远程仓库并与本地仓库关联
+在Github页面上，找到'Greate a new repository'，在远程创建一个新仓库名字就叫'learngit'。根据页面提示，把它与本地仓库关联起来。
+$ git remote add origin https://github.com/{yourName}/learngit.git
+$ git push -u origin master
+注意这里要把{yourName}换成你自己注册的名字，这里的origin代表的远程仓库的名字。第一次把本地【版本库】push到【远程仓库】origin的master分支，加了-u参数，使本地的master分支和远程的master分支关联起来。以后可以直接用$ git push origin master不用加-u参数就可以。
+推送成功之后，在https://github.com/{yourName}/learngit页面里可以看到【远程仓库】的内容已经和本地一模一样。
+
+6.2、也可以先在github上创建【远程仓库】，然后clone到本地来。
+在Github页面上，找到'Greate a new repository'，在远程创建一个新仓库名字叫'demo'，这次我们勾选Initialize this repository with a README，这样GitHub会为我们在刚才创建的新仓库中添加一个README.md文件。现在启动Git Bash，切换到D:\根目录，把刚才【远程仓库】demo里的数据clone到本地【版本库】中来。
+
+user@EXISTENCE MINGW64 /D
+$ git clone https://github.com/grayloach1/demo.git
+Cloning into 'demo'...
+remote: Enumerating objects: 3, done.
+remote: Counting objects: 100% (3/3), done.
+remote: Total 3 (delta 0), reused 0 (delta 0), pack-reused 0
+Unpacking objects: 100% (3/3), done.
+
+user@EXISTENCE MINGW64 /D
+$ cd demo
+
+user@EXISTENCE MINGW64 /D/demo (master)
+$
+
+注意要把以上命令中的{yourName}换成你的github用户名，现在可以看到刚才自动新建了D:\demo目录并被初始化为本地的【版本库】，并且它已经与【远程仓库】demo关联。
+
+6.3 分支管理
+之前操作的过程中，你可能已经注意到了反复出现的master字样，【版本库】中不同版本可以排成一条时间线，我们把这条主时间线称之为master分支，这时HEAD指针指向master分支。为了安全或者别的原因，我们有时需要创建新的版本但又不想影响master分支，这时可以用git branch dev分叉出一个新的分支，用git checkout dev切换到该分支，在内部Git以HEAD指针指向dev来表示。git branch命令会列出所有分支，注意当前分支名称前面有一个*符号，在命令行提示符也显示有当前分支名称。
+
+user@EXISTENCE MINGW64 /D/demo (master)
+$ git branch dev
+
+user@EXISTENCE MINGW64 /D/demo (master)
+$ git checkout dev
+Switched to branch 'dev'
+
+user@EXISTENCE MINGW64 /D/demo (dev)
+$ git branch
+* dev
+  master
+以上两条命令，也可以合并一条命令：
+user@EXISTENCE MINGW64 /D/demo (dev)
+$ git checkout -b dev
+
+现在我们就可以在dev分支下更新并提交了，我们在当前环境下【工作区】新增一个文件demo.py，更新到【版本库】，然后push到github上去。
+user@EXISTENCE MINGW64 /D/demo (dev)
+$ git add demo.py
+
+user@EXISTENCE MINGW64 /D/demo (dev)
+$ git commit -m 'Add demo.py file'
+[dev ebb3af4] Add demo.py file
+ 1 file changed, 1 insertion(+)
+ create mode 100644 demo.py
+
+user@EXISTENCE MINGW64 /D/demo (dev)
+$ git push origin dev
+……
+打开github上你的demo代码仓库，发现在Branch按钮下，可以选择除了master分支之外的另一个dev分支，它比master分支多出了一个demo.py文件。我们对在dev分支上的开发感到满意，现在我们想把该分支上的内容合并到master分支上去。先用git checkout master切换回master分支，系统内部会把HEAD指针指向master分支，然后用git merge dev，就会快速把dev上的内容合并到master分支，事实上，这种情况下系统只需要把master指向dev相同的时间线就可以。现在我们可以安全的用git branch -d dev删除掉dev分支，git branch查看一下，果然只剩下master分支了。
+
+user@EXISTENCE MINGW64 /D/demo (dev)
+$ git checkout master
+Switched to branch 'master'
+Your branch is up to date with 'origin/master'.
+
+user@EXISTENCE MINGW64 /D/demo (master)
+$ git merge dev
+Updating e095b19..ebb3af4
+Fast-forward
+ demo.py | 1 +
+ 1 file changed, 1 insertion(+)
+ create mode 100644 demo.py
+
+user@EXISTENCE MINGW64 /D/demo (master)
+$ git branch -d dev
+Deleted branch dev (was ebb3af4).
+
+user@EXISTENCE MINGW64 /D/demo (master)
+$ git branch
+* master
+
+等一下，本地dev分支虽然已经删除了，但是远程的dev分支还在，想要删除【远程仓库】中的dev分支，使用git branch -r查看远程分支，使用git branch -r -d origin/dev和git push origin :dev删除。
+
+user@EXISTENCE MINGW64 /D/demo (master)
+$ git branch -r
+  origin/HEAD -> origin/master
+  origin/dev
+  origin/master
+
+user@EXISTENCE MINGW64 /D/demo (master)
+$ git branch -r -d origin/dev
+Deleted remote-tracking branch origin/dev (was ebb3af4).
+
+user@EXISTENCE MINGW64 /D/demo (master)
+$ git push origin :dev
+To https://github.com/grayloach1/demo.git
+ - [deleted]         dev
+
+6.4 分支冲突和分支策略
+在6.3中，虽然我们分叉了dev分支，但是master分支在分叉之后并没有进行任何更改，换言之，我们处理的依然是单条时间线。
+
+如果在dev和master分支分别进行了更新，这时候使用git merge合并时间线，系统会提示冲突，git status会告诉我们冲突的文件，这时候就需要手动解决这些冲突之后再提交了。
+更多内容，可以参考文末的连接。
+
+对于多人协同开发来说，通常的策略是，master分支仅用来发布正式版本。每个人都有自己专属的分支，并时不时的把自己分支上的工作，合并到大家共用的dev分支上去，用dev分支来协同大家的工作，并使用dev分支来更新master。
+
+O---------O--------O---------  master
+ \O-----O/---O---O/----O-----  dev
+  |\O-O/|--O/--O-|---O/--O---  You
+  O-----O----O---O-----O-----  Bob
+
+好啦，学会这些就可以先把github用起来啦，这只是一个简易教程，以后遇到问题，再边用边学习吧。
+
 
 参考：
 https://www.liaoxuefeng.com/wiki/896043488029600
